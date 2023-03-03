@@ -12,7 +12,6 @@ public partial class RopeModel : MonoBehaviour{
     public ConnectedBody firstNodeConnectedBody;
 
     public float length = 7f;
-    public string _actualLength;  // debug only
     public float kRope = 40f;     // spring constant
     public float dRope = 2f;      // damping from rope friction
     public float aRope = 0.05f;   // damping from air resistance
@@ -21,14 +20,16 @@ public partial class RopeModel : MonoBehaviour{
     [Range(1, 10)] public int solverIterations = 1;
     [Range(1, 10)] public int maxStretchIterations = 2;
     public StretchLimiter stretchCorrection;
+    [Header("Debug")]
     public bool debugLength = true;
+    public string stretchPcnt;  // debug only
     [Header("Drawing")]
     public bool debugDraw;
     public float drawScale = 0.1f;
     public float accelDrawScale = 1f;
     public float velDrawScale = 1f;
     //
-    public float ropeLength = 7f;
+    float etl = 7f;
     List<RopeSection> sections = new ();
     List<v3> accel, allForces;
     EulerExtrapolation euler;
@@ -48,7 +49,7 @@ public partial class RopeModel : MonoBehaviour{
     void Start(){
         // Build the rope top-down
         //var pos = lastNodeConnectedBody.position;
-        ropeLength = length;
+        etl = length;
         var ropePositions = new List<v3>(sectionCount);
         var A = firstNodeConnectedBody.position;
         var B = lastNodeConnectedBody.position;
@@ -68,7 +69,7 @@ public partial class RopeModel : MonoBehaviour{
 
     void Update(){
         if(debugLength)
-            _actualLength = $"{actualLength/length:P0}";
+            stretchPcnt = $"{actualLength/length:P0}";
     }
 
     void FixedUpdate(){
@@ -136,7 +137,7 @@ public partial class RopeModel : MonoBehaviour{
         // if actual length is 10 but target length is 5
         // then target 5 x 5 / 10 = 2.5
         var w = length / actualLength; w *= w;
-        ropeLength = length * w * w;
+        etl = length * w * w;
     }
 
     // --------------------------------------------------------------
@@ -253,6 +254,6 @@ public partial class RopeModel : MonoBehaviour{
 
     int maxIndex => count - 1;
 
-    float ropeSectionLength => ropeLength / sectionCount;
+    float ropeSectionLength => etl / sectionCount;
 
 }
