@@ -13,19 +13,18 @@ using UnityEngine; using v3 = UnityEngine.Vector3;
     List<v3> @out = new List<v3>();
 
     public void Apply(
-        List<RopeSection> input, float length,
+        List<RopeSection> input, float length, float realLength,
         float hint,
         bool backward, bool forward
     ){
         sections = input;
-        this.length = length * hint;
         if(backward == forward){
-            //BidiDefault();
+            this.length = length * hint; //BidiDefault();
             if(hint < 1f) CompressBidi(hint); else ExpandBidi();
-        }else if(backward){
-            Backward();
-        }else if(forward){
-            Forward();
+        }else{
+            this.length = realLength;
+            if(backward) Backward();
+            if(forward) Forward();
         }
     }
 
@@ -104,14 +103,14 @@ using UnityEngine; using v3 = UnityEngine.Vector3;
     void Backward(){
         for (int i = count - 1; i >= 1; i--) EnforceMaxStretch(
             x: sections[i], y: sections[i - 1],
-            i: i, flip: -1, length: length
+            i: i-1, flip: -1, length: length
         );
     }
 
     void Forward(){
         for (int i = 0; i < count - 1; i++) EnforceMaxStretch(
             x: sections[i], y: sections[i + 1],
-            i: i, flip: 1, length: length
+            i: i+1, flip: 1, length: length
         );
     }
 
@@ -124,13 +123,13 @@ using UnityEngine; using v3 = UnityEngine.Vector3;
             float compressLength = dist - (length * maxStretch);
             var compressDir = (x.pos - y.pos).normalized;
             var change = compressDir * compressLength;
-            MoveSection(change, i + flip);
+            MoveSection(change, i);
         }
         else if (stretch < minStretch){
             float stretchLength = (length * minStretch) - dist;
             var stretchDir = (y.pos - x.pos).normalized;
             var change = stretchDir * stretchLength;
-            MoveSection(change, i + flip);
+            MoveSection(change, i);
         }
     }
 

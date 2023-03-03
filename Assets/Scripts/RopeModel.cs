@@ -20,6 +20,7 @@ public partial class RopeModel : MonoBehaviour{
     [Range(1, 10)] public int solverIterations = 1;
     [Range(1, 10)] public int maxStretchIterations = 2;
     public StretchLimiter stretchCorrection;
+    public bool limitStretch = false;
     [Header("Debug")]
     public bool debugLength = true;
     public string stretchPcnt;  // debug only
@@ -127,6 +128,7 @@ public partial class RopeModel : MonoBehaviour{
         for (int i = 0; i < maxStretchIterations; i++){
             stretchCorrection.Apply(
                 sections, ropeSectionLength,
+                realRopeSectionLength,
                 hint: length / actualLength,
                 backward: firstNodeConnectedBody.followRope,
                 forward: lastNodeConnectedBody.followRope
@@ -253,6 +255,8 @@ public partial class RopeModel : MonoBehaviour{
     }
 
     int maxIndex => count - 1;
+
+    float realRopeSectionLength => length / sectionCount;
 
     float ropeSectionLength => etl / sectionCount;
 
