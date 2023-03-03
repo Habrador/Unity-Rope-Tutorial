@@ -58,3 +58,5 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+Assets/Resources/BillingMode.json
+Assets/Resources/BillingMode.json.meta

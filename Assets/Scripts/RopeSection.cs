@@ -11,10 +11,18 @@ public struct RopeSection
     //To write RopeSection.zero
     public static readonly RopeSection zero = new RopeSection(Vector3.zero);
 
-    public RopeSection(Vector3 pos)
-    {
+    public RopeSection(Vector3 pos, Vector3 vel){
         this.pos = pos;
+        this.vel = vel;
+    }
 
+    public RopeSection(Vector3 pos){
+        this.pos = pos;
         this.vel = Vector3.zero;
     }
+
+    public void SetPos(Vector3 pos){
+        this.pos = pos;
+    }
+
 }
