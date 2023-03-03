@@ -11,22 +11,24 @@ public partial class RopeModel : MonoBehaviour{
     // the rope
     public ConnectedBody firstNodeConnectedBody;
 
-    public float ropeLength = 7f;
+    public float length = 7f;
     public string _actualLength;  // debug only
     public float kRope = 40f;     // spring constant
     public float dRope = 2f;      // damping from rope friction
     public float aRope = 0.05f;   // damping from air resistance
     [Min(0)] public float mRopeSection = 0.2f;  // per section mass
-    [Range(3, 100)] public int sectionCount = 7;
+    [Min(2)] public int sectionCount = 7;
     [Range(1, 10)] public int solverIterations = 1;
     [Range(1, 10)] public int maxStretchIterations = 2;
     public StretchLimiter stretchCorrection;
     public bool debugLength = true;
     [Header("Drawing")]
+    public bool debugDraw;
     public float drawScale = 0.1f;
     public float accelDrawScale = 1f;
     public float velDrawScale = 1f;
     //
+    public float ropeLength = 7f;
     List<RopeSection> sections = new ();
     List<v3> accel, allForces;
     EulerExtrapolation euler;
@@ -46,6 +48,7 @@ public partial class RopeModel : MonoBehaviour{
     void Start(){
         // Build the rope top-down
         //var pos = lastNodeConnectedBody.position;
+        ropeLength = length;
         var ropePositions = new List<v3>(sectionCount);
         var A = firstNodeConnectedBody.position;
         var B = lastNodeConnectedBody.position;
@@ -65,7 +68,7 @@ public partial class RopeModel : MonoBehaviour{
 
     void Update(){
         if(debugLength)
-            _actualLength = $"{actualLength/ropeLength:P0}";
+            _actualLength = $"{actualLength/length:P0}";
     }
 
     void FixedUpdate(){
@@ -120,23 +123,33 @@ public partial class RopeModel : MonoBehaviour{
             sections[i] = nextPosVelHeunsMethod[i];
         }
         // Enforce max stretch
-        for (int i = 0; i < maxStretchIterations; i++)
+        for (int i = 0; i < maxStretchIterations; i++){
             stretchCorrection.Apply(
                 sections, ropeSectionLength,
+                hint: length / actualLength,
                 backward: firstNodeConnectedBody.followRope,
                 forward: lastNodeConnectedBody.followRope
+
             );
+        }
+        // Max stretch hack
+        // if actual length is 10 but target length is 5
+        // then target 5 x 5 / 10 = 2.5
+        var w = length / actualLength; w *= w;
+        ropeLength = length * w * w;
     }
+
+    // --------------------------------------------------------------
 
     // When doing a velocity/position update pass, ends will be
     // pinned depending on connected body state
     void PinEndsAsNeeded(List<RopeSection> s){
         if(!firstNodeConnectedBody.followRope){
-            Debug.Log("pin first connected body");
+            //ebug.Log("pin first connected body");
             s[0] = firstNodeConnectedBody.velPos;
         }
         if(!lastNodeConnectedBody.followRope){
-            Debug.Log("pin last connected body");
+            //ebug.Log("pin last connected body");
             s[maxIndex] = lastNodeConnectedBody.velPos;
         }
     }
@@ -194,7 +207,7 @@ public partial class RopeModel : MonoBehaviour{
             v3 acceleration = totalForce / springMass;
             accel.Add(acceleration);
         }
-        Debug.Log($"number of accel nodes: {accel.Count}");
+        //ebug.Log($"number of accel nodes: {accel.Count}");
         // Last segment's acceleration is 0 since attached to
         // something
         if(!lastNodeConnectedBody.followRope)
@@ -226,19 +239,10 @@ public partial class RopeModel : MonoBehaviour{
         allForces = new List<v3>(count);
     }
 
-    /*
-    string Format(){
-        var pos = from s in sections select s.pos.y;
-        var eul = from
-        return "POS " + string.Join(" ", pos) + "\n"
-             + "EUL " + string.Join(" ", eulMag) + "\n"
-        return null;
-    }
-    */
-
     void OnDisable(){ euler = null; heuns = null; accel = null; }
 
     void OnDrawGizmos(){
+        if(!debugDraw) return;
         int i = 0;
         foreach(var k in sections){
             Debug.DrawRay(k.pos, k.vel * drawScale * velDrawScale, Color.green);

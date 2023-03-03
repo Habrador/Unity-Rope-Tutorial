@@ -21,4 +21,8 @@ public struct RopeSection
         this.vel = Vector3.zero;
     }
 
+    public void SetPos(Vector3 pos){
+        this.pos = pos;
+    }
+
 }

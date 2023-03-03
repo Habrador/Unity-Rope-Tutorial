@@ -10,23 +10,95 @@ using UnityEngine; using v3 = UnityEngine.Vector3;
     public float maxStretch = 1.1f;
     List<RopeSection> sections;  // all rope sections
     float length;  // the target length
+    List<v3> @out = new List<v3>();
 
     public void Apply(
         List<RopeSection> input, float length,
+        float hint,
         bool backward, bool forward
     ){
         sections = input;
-        this.length = length;
+        this.length = length * hint;
         if(backward == forward){
-            Debug.Log("Bidi");
-            Bidi();
+            //BidiDefault();
+            if(hint < 1f) CompressBidi(hint); else ExpandBidi();
         }else if(backward){
-            Debug.Log("Backward");
             Backward();
         }else if(forward){
-            Debug.Log("Forward");
             Forward();
         }
+    }
+
+    void CompressBidi(float hint){
+        InitOutput();
+        v3 u = (sections[count-1].pos - sections[0].pos) / count;
+        for(int i = 1; i < count - 1; i++){
+            v3 left = sections[i - 1].pos, right = sections[i + 1].pos;
+            v3 self = sections[i].pos;
+            v3 flat = sections[0].pos + u * i;
+            v3 smooth = (left + right)/2;  // neighbours, averaged
+            var μ = 1 - hint;
+            // Let's say the target length is 0.8:
+            // First, lerp by 0.2 towards 'smooth' node - this is
+            // not very effective but visibly helps getting a much
+            // smoother result.
+            // Next and more drastically, move towards the "flat"
+            // image by μ; value of μ should remain small, and
+            // vanish as we tend towards desired length
+            // The first (less effective) step may be removed for
+            // comparison.
+            @out[i] = v3.Lerp(self, smooth, μ);
+            @out[i] = v3.Lerp(@out[i], flat, μ * μ);
+        }
+        // NOTE - 'UpdateSection' exists cause mutable structs are bs
+        for(int i = 1; i < count - 1; i++){
+            UpdateSection(@out[i], i);
+        }
+    }
+
+    // Simple method where each segment (spannning two consecutive
+    // points) pushes points outwards; good enough for stretching,
+    // which usually does not show artefacts (spring model errors
+    // tend to overstretch the rope, not compress it)
+    void ExpandBidi(){
+        InitOutput();
+        for(int i = 0; i < count - 1; i++){
+            v3 A0 = sections[i].pos, B0 = sections[i + 1].pos;
+            var P = (A0 + B0) / 2;
+            var u = (B0 - A0).normalized;
+            var s = length * 0.5f;
+            @out[i + 0] += P - u * s;
+            @out[i + 1] += P + u * s;
+        }
+        for(int i = 1; i < count - 1; i++){
+            UpdateSection(@out[i]/2, i);
+        }
+        UpdateSection(@out[0], 0);
+        UpdateSection(@out[count - 1], count - 1);
+    }
+
+    // May work either for compressing or stretching the rope; legacy
+    // approach adapted from single attachment cases; produces
+    // bathtub shaped curves ;-)
+    void BidiDefault(){
+        int max = count - 1;
+        for (int i = 0; i < count/2; i++){
+            EnforceMaxStretch(
+                x: sections[i],
+                y: sections[i + 1],
+                i: i, flip: +1, length: length
+            );
+            EnforceMaxStretch(
+                x: sections[max - i],
+                y: sections[max - i - 1],
+                i: max - i, flip: -1, length: length
+            );
+        }
+    }
+
+    void InitOutput(){
+        @out.Clear();
+        for(int i = 0; i < count; i++) @out.Add(v3.zero);
     }
 
     void Backward(){
@@ -43,46 +115,33 @@ using UnityEngine; using v3 = UnityEngine.Vector3;
         );
     }
 
-    void Bidi(){
-        int max = count - 1;
-        for (int i = 0; i < count/2; i++){
-            EnforceMaxStretch(
-                x: sections[i],
-                y: sections[i + 1],
-                i: i, flip: +1, length: length
-            );
-            EnforceMaxStretch(
-                x: sections[max - i],
-                y: sections[max - i - 1],
-                i: max - i, flip: -1, length: length
-            );
-        }  // end for loops
-    }
-
-    void EnforceMaxStretch(RopeSection x, RopeSection y, int i, int flip, float length){
+    void EnforceMaxStretch(
+        RopeSection x, RopeSection y, int i, int flip, float length
+    ){
         float dist = (x.pos - y.pos).magnitude;
-        // How stretched/compressed?
         float stretch = dist / length;
         if (stretch > maxStretch){
-            // How far do we need to compress the spring?
             float compressLength = dist - (length * maxStretch);
-            // In what direction should we compress the spring?
             var compressDir = (x.pos - y.pos).normalized;
             var change = compressDir * compressLength;
             MoveSection(change, i + flip);
         }
         else if (stretch < minStretch){
-            // How far do we need to stretch the spring?
             float stretchLength = (length * minStretch) - dist;
-            // In what direction should we compress the spring?
             var stretchDir = (y.pos - x.pos).normalized;
             var change = stretchDir * stretchLength;
             MoveSection(change, i + flip);
         }
     }
 
-    // Move a rope section based on stretch/compression
-    // TODO what is this like... adding 1 number???
+    // NOTE - bs used to just update one point cause mutable struct
+    private void UpdateSection(Vector3 P, int listPos){
+        var next = sections[listPos];
+        next.pos = P;
+        sections[listPos] = next;
+    }
+
+    // NOTE - bs used to just update one point cause mutable struct
     private void MoveSection(Vector3 change, int listPos){
         var next = sections[listPos];
         v3 pos = next.pos;
