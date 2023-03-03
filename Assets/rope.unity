@@ -479,7 +479,6 @@ MonoBehaviour:
     transform: {fileID: 1320842397}
     followRope: 0
   length: 7
-  _actualLength: 
   kRope: 40
   dRope: 2
   aRope: 0.05
@@ -490,12 +489,12 @@ MonoBehaviour:
   stretchCorrection:
     minStretch: 0.9
     maxStretch: 1.1
-  debugLength: 1
+  debugLength: 0
+  stretchPcnt: 
   debugDraw: 0
   drawScale: 0.1
   accelDrawScale: 1
   velDrawScale: 1
-  ropeLength: 7
 --- !u!120 &1170612262
 LineRenderer:
   m_ObjectHideFlags: 0
