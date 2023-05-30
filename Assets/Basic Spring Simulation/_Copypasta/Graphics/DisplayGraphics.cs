@@ -14,15 +14,20 @@ namespace Copypasta
         {
             Material material = Materials.GetMaterial(color);
 
+            DisplayMesh(mesh, material);
+        }
+
+        public static void DisplayMesh(Mesh mesh, Material material)
+        {
             Graphics.DrawMesh(mesh, Vector3.zero, Quaternion.identity, material, 0, Camera.main, 0);
         }
-    
-    
+
+
 
         //
         // Draw a circle 
         //
-        
+
         //The circle can become a triangle if you lower resolution!
         public static void DisplayCircle(Circle circle, Materials.ColorOptions color, Circle.Space2D space, int resolution = 100)
         {
@@ -89,6 +94,131 @@ namespace Copypasta
             return m;
         }
 
+
+
+        //
+        // Draw a thicc line 
+        //
+
+        public static void DisplayThiccLine(List<Vector3> lineCoordinates, float lineRadius, int lineResolution, Materials.ColorOptions color)
+        {
+            Mesh m = GenerateThiccLineMesh(lineCoordinates, lineRadius, lineResolution);
+
+            DisplayMesh(m, color);
+        }
+
+
+        public static void DisplayThiccLine(List<Vector3> lineCoordinates, float lineRadius, int lineResolution, Material material)
+        {
+            Mesh m = GenerateThiccLineMesh(lineCoordinates, lineRadius, lineResolution);
+
+            DisplayMesh(m, material);
+        }
+
+
+        //Extrude a circle mesh along a line to make a thicc line
+        public static Mesh GenerateThiccLineMesh(List<Vector3> lineCoordinates, float lineRadius, int lineResolution)
+        {
+            //Generate mesh vertices at point 1 in a circle aligned along the first line segment
+            //Extrude them my moving them along the normal towards the next point
+
+            //Find a point on the circle which is a normal to the first line segment
+            Vector3 a = lineCoordinates[0];
+            Vector3 b = lineCoordinates[1];
+
+            Vector3 lineDir = (b - a).normalized;
+
+            Vector3 normal = Vector3.Cross(lineDir, Vector3.up).normalized;
+
+            Vector3 p0 = normal * lineRadius;
+
+
+            //Find the other vertices by rotating p0 around the line segment to get a full circle with some resolution
+            List<Vector3> vertices = new();
+
+            float angleStep = 360f / (float)lineResolution;
+
+            float angle = 0f;
+
+            //Rotate p0 around the line segment to get a full circle with some resolution
+            for (int i = 0; i < lineResolution; i++)
+            {
+                Vector3 p = Quaternion.AngleAxis(angle, lineDir) * p0;
+
+                p += a;
+
+                vertices.Add(p);
+
+                angle += angleStep;
+            }
+
+
+            //Add the rest of the vertices by moving the previous vertices along the normal towards the next point
+            for (int i = 1; i < lineCoordinates.Count; i++)
+            {
+                Vector3 moveDist = lineCoordinates[i] - lineCoordinates[i - 1];
+
+                for (int j = 0; j < lineResolution; j++)
+                {
+                    Vector3 p = vertices[vertices.Count - lineResolution];
+
+                    vertices.Add(p + moveDist);
+                }
+
+            }
+
+            //Copypasta.DisplayGraphics.DisplayLine(vertices, Copypasta.Materials.ColorOptions.Orange);
+
+            //Generate the mesh triangles
+            List<int> triangles = new();
+
+            for (int i = lineResolution; i < vertices.Count; i += lineResolution)
+            {
+                for (int j = 0; j < lineResolution; j++)
+                {
+                    int thisVertex = i + j;
+                    //The corresponding vertex on the previous circle
+                    int thisVertexPreviousCircle = thisVertex - lineResolution;
+
+                    int thisVertexPrevJIndex = j - 1;
+                    if (thisVertexPrevJIndex < 0)
+                    {
+                        thisVertexPrevJIndex = lineResolution - 1;
+                    }
+
+                    //The vertex coming before this vertex
+                    int thisVertexPrev = thisVertexPrevJIndex + i;
+
+                    //The corresponding previous vertex on the previous circle
+                    int thisVertexPrevPreviousCircle = thisVertexPrev - lineResolution;
+
+                    //Build the triangles
+                    int aIndex = thisVertexPrevPreviousCircle;
+                    int bIndex = thisVertexPrev;
+                    int cIndex = thisVertexPreviousCircle;
+                    int dIndex = thisVertex;
+
+                    triangles.Add(aIndex);
+                    triangles.Add(bIndex);
+                    triangles.Add(dIndex);
+
+                    triangles.Add(aIndex);
+                    triangles.Add(dIndex);
+                    triangles.Add(cIndex);
+                }
+            }
+
+
+            //Make a mesh
+            Mesh m = new();
+
+            m.SetVertices(vertices);
+            m.SetTriangles(triangles, 0);
+
+            m.RecalculateNormals();
+
+            return m;
+        }
 
 
         //
