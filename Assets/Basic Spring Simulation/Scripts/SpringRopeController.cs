@@ -69,6 +69,10 @@ public class SpringRopeController : MonoBehaviour
         List<Vector3> spring1Coordinates = GetVisualSpringCoordinates(pos0_3d, pos1_3d, 0.5f);
 
         Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.Black);
+
+        List<Vector3> spring2Coordinates = GetVisualSpringCoordinates(pos1_3d, pos2_3d, 0.5f);
+
+        Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.Black);
     }
 
 
@@ -145,6 +149,7 @@ public class SpringRopeController : MonoBehaviour
     {
         List<Vector3> coordinates = new();
 
+        
         int circleResolution = 10;
         int spirals = 5;
         int iterations = circleResolution * spirals;
@@ -162,14 +167,55 @@ public class SpringRopeController : MonoBehaviour
 
             Vector3 vertex = new(x, yPos, z);
 
-            //vertex += this.center;
+            vertex.x += pos1.x;
+            vertex.z += pos1.z;
 
             coordinates.Add(vertex);
 
             angle += angleStep;
             yPos -= yStep;
         }
+        
+
+        //coordinates.Add(pos1);
+        //coordinates.Add(pos1 - Vector3.up * (pos1 - pos2).magnitude);
+
+        
+        //Rotate the spring to match the direction pos1 -> pos2
+        Vector3 pivotPoint = pos1;
+
+        float theta = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
+
+        for (int i = 0; i < coordinates.Count; i++)
+        {
+            Vector3 vec = coordinates[i];
+
+            Vector2 vecRotated = RotateVec(vec.x, vec.y, theta, pivotPoint.x, pivotPoint.y);
+
+            coordinates[i] = new(vecRotated.x, vecRotated.y, vec.z);
+        }
+        
+
 
         return coordinates;
+    }
+
+
+
+    private Vector2 RotateVec(float x, float y, float theta, float pivotX, float pivotY)
+    {
+        float thetaRad = theta * Mathf.Deg2Rad;
+
+        //Subtract the pivot from the vector so the vector originates from origo
+        float xZero = x - pivotX;
+        float yZero = y - pivotY;
+
+        float xRotated = xZero * Mathf.Cos(thetaRad) - yZero * Mathf.Sin(thetaRad);
+        float yRotated = xZero * Mathf.Sin(thetaRad) + yZero * Mathf.Cos(thetaRad);
+
+        xRotated += pivotX;
+        yRotated += pivotY;
+
+        return new(xRotated, yRotated);
     }
 }
