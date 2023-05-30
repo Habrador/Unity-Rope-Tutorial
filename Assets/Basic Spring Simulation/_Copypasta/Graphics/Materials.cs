@@ -47,9 +47,9 @@ namespace Copypasta
 
         private static Material GetBaseMaterial(Color color)
         {
-            //Material baseMaterial = new(Shader.Find("Unlit/Color"));
+            Material baseMaterial = new(Shader.Find("Unlit/Color"));
 
-            Material baseMaterial = new(Shader.Find("Universal Render Pipeline/Unlit"));
+            //Material baseMaterial = new(Shader.Find("Universal Render Pipeline/Unlit"));
 
             baseMaterial.color = color;
 

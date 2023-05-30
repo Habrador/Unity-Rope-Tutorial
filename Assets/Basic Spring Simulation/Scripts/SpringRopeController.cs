@@ -50,6 +50,21 @@ public class SpringRopeController : MonoBehaviour
     {
         springNode1Transform.position = new Vector3(pos1.x, pos1.y, springNode1Transform.position.z);
         springNode2Transform.position = new Vector3(pos2.x, pos2.y, springNode2Transform.position.z);
+
+        //Connect the nodes with a line
+        Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
+
+        Vector3 pos0_3d = new(pos0.x, pos0.y, 0f);
+        Vector3 pos1_3d = new(pos1.x, pos1.y, 0f);
+        Vector3 pos2_3d = new(pos2.x, pos2.y, 0f);
+
+        List<Vector3> line = new();
+
+        line.Add(pos0_3d);
+        line.Add(pos1_3d);
+        line.Add(pos2_3d);
+
+        Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
     }
 
 
