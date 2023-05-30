@@ -48,6 +48,14 @@ public class SpringRopeController : MonoBehaviour
 
     private void Update()
     {
+        Vector3 pos = anchorPointTransform.position;
+
+        float deg = Mathf.Atan2(pos.y, pos.x) * Mathf.Rad2Deg;
+
+        Debug.Log(deg);
+
+        return;
+
         springNode1Transform.position = new Vector3(pos1.x, pos1.y, springNode1Transform.position.z);
         springNode2Transform.position = new Vector3(pos2.x, pos2.y, springNode2Transform.position.z);
 
@@ -79,6 +87,8 @@ public class SpringRopeController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        return;
+    
         //Calculate the spring forces
         //F = -kx
         //k - spring constant
@@ -184,8 +194,11 @@ public class SpringRopeController : MonoBehaviour
         //Rotate the spring to match the direction pos1 -> pos2
         Vector3 pivotPoint = pos1;
 
+        //Atan2 returns 0->180 counter-clockwise if above x-axis, 0->-180 if below x-axis
         float theta = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
 
+        //This will rotate it by for example 45 degrees but the spring is not starting along the x-axis where the degrees start
+        //which is why we have to compensate by the 90 degrees in atan2 calculations
         for (int i = 0; i < coordinates.Count; i++)
         {
             Vector3 vec = coordinates[i];
