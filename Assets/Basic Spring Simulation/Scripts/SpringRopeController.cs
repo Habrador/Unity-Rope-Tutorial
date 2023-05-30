@@ -64,7 +64,11 @@ public class SpringRopeController : MonoBehaviour
         line.Add(pos1_3d);
         line.Add(pos2_3d);
 
-        Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
+        //Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
+
+        List<Vector3> spring1Coordinates = GetVisualSpringCoordinates(pos0_3d, pos1_3d, 0.5f);
+
+        Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.Black);
     }
 
 
@@ -132,5 +136,40 @@ public class SpringRopeController : MonoBehaviour
         //Add some damping
         //vel1 *= 0.99f;
         //vel2 *= 0.99f;
+    }
+
+
+
+    //Generate coordinates for a line that curves like a spring
+    private List<Vector3> GetVisualSpringCoordinates(Vector3 pos1, Vector3 pos2, float radius)
+    {
+        List<Vector3> coordinates = new();
+
+        int circleResolution = 10;
+        int spirals = 5;
+        int iterations = circleResolution * spirals;
+
+        float angle = 90f;
+        float angleStep = 360f / (float)circleResolution;
+
+        float yPos = pos1.y;
+        float yStep = (pos2 - pos1).magnitude / (float)iterations;
+
+        for (int i = 0; i < iterations + 1; i++)
+        {
+            float x = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
+            float z = radius * Mathf.Sin(angle * Mathf.Deg2Rad);
+
+            Vector3 vertex = new(x, yPos, z);
+
+            //vertex += this.center;
+
+            coordinates.Add(vertex);
+
+            angle += angleStep;
+            yPos -= yStep;
+        }
+
+        return coordinates;
     }
 }
