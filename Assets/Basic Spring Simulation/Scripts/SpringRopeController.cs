@@ -31,13 +31,19 @@ public class SpringRopeController : MonoBehaviour
     //Gravity
     private readonly Vector2 g = new(0f, -9.81f);
 
+    //To display the history
+    private Queue<Vector3> node1History = new();
+    private Queue<Vector3> node2History = new();
+
+    private float addToQueueTimer = 0f;
+
 
 
     private void Start()
     {
         //Where the spring starts
-        float startY = anchorPointTransform.position.y - 3f;
-        float startX = anchorPointTransform.position.x + 2f;
+        float startY = anchorPointTransform.position.y + 3f;
+        float startX = anchorPointTransform.position.x + 3f;
 
         pos1 = new(startX, startY);
 
@@ -48,14 +54,6 @@ public class SpringRopeController : MonoBehaviour
 
     private void Update()
     {
-        Vector3 pos = anchorPointTransform.position;
-
-        float deg = Mathf.Atan2(pos.y, pos.x) * Mathf.Rad2Deg;
-
-        Debug.Log(deg);
-
-        return;
-
         springNode1Transform.position = new Vector3(pos1.x, pos1.y, springNode1Transform.position.z);
         springNode2Transform.position = new Vector3(pos2.x, pos2.y, springNode2Transform.position.z);
 
@@ -76,19 +74,32 @@ public class SpringRopeController : MonoBehaviour
 
         List<Vector3> spring1Coordinates = GetVisualSpringCoordinates(pos0_3d, pos1_3d, 0.5f);
 
-        Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.Black);
+        Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.White);
 
         List<Vector3> spring2Coordinates = GetVisualSpringCoordinates(pos1_3d, pos2_3d, 0.5f);
 
-        Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.Black);
+        Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.White);
+
+
+        addToQueueTimer -= Time.deltaTime;
+
+        if (addToQueueTimer < 0f)
+        {
+            node1History.Enqueue(pos1_3d);
+            node2History.Enqueue(pos2_3d);
+
+            addToQueueTimer = 0.05f;
+        }
+
+
+        Copypasta.DisplayGraphics.DisplayLine(new(node1History), Copypasta.Materials.ColorOptions.Blue);
+        Copypasta.DisplayGraphics.DisplayLine(new(node2History), Copypasta.Materials.ColorOptions.Yellow);
     }
 
 
 
     private void FixedUpdate()
-    {
-        return;
-    
+    {    
         //Calculate the spring forces
         //F = -kx
         //k - spring constant
