@@ -57,21 +57,26 @@ public class SpringRopeController : MonoBehaviour
     private void FixedUpdate()
     {
         //Calculate the spring forces
-    
+        //F = -kx
+        //k - spring constant
+        //x - x is extension from rest length
+
+        //The fixed annchor node
+        Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
+
         //Spring force 1
-        Vector2 anchorToSpringPos1 = pos1 - new Vector2(anchorPointTransform.position.x, anchorPointTransform.position.y);
+        Vector2 node0ToNode1 = pos1 - pos0;
 
-        //F = -kx where x is extension from rest length
-        float x1 = anchorToSpringPos1.magnitude - restLength;
+        float x1 = node0ToNode1.magnitude - restLength;
 
-        Vector2 F1 = -k * x1 * anchorToSpringPos1.normalized;
+        Vector2 F1 = -k * x1 * node0ToNode1.normalized;
 
         //Spring force 2
-        Vector2 springPos1ToSpringPos2 = pos2 - pos1;
+        Vector2 node1ToNode2 = pos2 - pos1;
 
-        float x2 = springPos1ToSpringPos2.magnitude - restLength;
+        float x2 = node1ToNode2.magnitude - restLength;
 
-        Vector2 F2 = -k * x2 * springPos1ToSpringPos2.normalized;
+        Vector2 F2 = -k * x2 * node1ToNode2.normalized;
 
 
         //Calculate the total force on each node
