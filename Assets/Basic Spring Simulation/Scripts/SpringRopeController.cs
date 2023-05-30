@@ -119,7 +119,7 @@ public class SpringRopeController : MonoBehaviour
         }
 
         //Copypasta.DisplayGraphics.DisplayLine(new(node1History), Copypasta.Materials.ColorOptions.Blue);
-        Copypasta.DisplayGraphics.DisplayLine(new(node2History), Copypasta.Materials.ColorOptions.Yellow);
+        Copypasta.DisplayGraphics.DisplayLine(new(node2History), Copypasta.Materials.ColorOptions.Black);
     }
 
 
