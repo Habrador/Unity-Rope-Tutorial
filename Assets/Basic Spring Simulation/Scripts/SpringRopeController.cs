@@ -10,6 +10,8 @@ public class SpringRopeController : MonoBehaviour
 
     public Transform springNode2Transform;
 
+    public Material springMaterial;
+
     //Spring data
     //Spring constant
     private readonly float k = 20f;
@@ -17,6 +19,10 @@ public class SpringRopeController : MonoBehaviour
     private readonly float restLength = 2f;
     //Spring mass 
     private readonly float m = 1f;
+    //Radius of the wire the spring is made up of
+    private readonly float springWireRadius = 0.07f;
+    //Radius of the spring
+    private readonly float springRadius = 0.7f;
 
     //Spring node states state
     //Each spring consists of two nodes which can be shared if they are connected
@@ -70,20 +76,21 @@ public class SpringRopeController : MonoBehaviour
         line.Add(pos1_3d);
         line.Add(pos2_3d);
 
-        DisplayThiccLine(line);
+        //DisplayThiccLine(line);
 
-        return;
+        //return;
 
         //Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
 
-        List<Vector3> spring1Coordinates = GetVisualSpringCoordinates(pos0_3d, pos1_3d, 0.5f);
-        List<Vector3> spring2Coordinates = GetVisualSpringCoordinates(pos1_3d, pos2_3d, 0.5f);
+        List<Vector3> spring1Coordinates = GetVisualSpringCoordinates(pos0_3d, pos1_3d, springRadius);
+        List<Vector3> spring2Coordinates = GetVisualSpringCoordinates(pos1_3d, pos2_3d, springRadius);
 
         //Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.White);
         //Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.White);
 
         DisplayThiccLine(spring1Coordinates);
-        
+        DisplayThiccLine(spring2Coordinates);
+
 
         //Display the history of the spring positions 
         addToQueueTimer -= Time.deltaTime;
@@ -104,7 +111,7 @@ public class SpringRopeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        return;
+        //return;
     
         //Calculate the spring forces
         //F = -kx
@@ -255,11 +262,11 @@ public class SpringRopeController : MonoBehaviour
     //Extrude a mesh along a line to make a thicc line
     private void DisplayThiccLine(List<Vector3> lineCoordinates)
     {
-        //Generate mesh vertices at point 1
+        //Generate mesh vertices at point 1 in a circle aligned along the first line segment
         //Extrude them my moving them along the normal towards the next point
 
         //Find a point on the circle which is a normal to the first line segment
-        float lineRadius = 0.5f;
+        float lineRadius = springWireRadius;
 
         Vector3 a = lineCoordinates[0];
         Vector3 b = lineCoordinates[1];
@@ -306,7 +313,59 @@ public class SpringRopeController : MonoBehaviour
             }
 
         }
-        
-        Copypasta.DisplayGraphics.DisplayLine(vertices, Copypasta.Materials.ColorOptions.Orange);
+
+        //Copypasta.DisplayGraphics.DisplayLine(vertices, Copypasta.Materials.ColorOptions.Orange);
+
+        //Generate the mesh triangles
+        List<int> triangles = new();
+
+        for (int i = resolution; i < vertices.Count; i += resolution)
+        {
+            for (int j = 0; j < resolution; j++)
+            {
+                int thisVertex = i + j;
+                //The corresponding vertex on the previous circle
+                int thisVertexPreviousCircle = thisVertex - resolution;
+
+                int thisVertexPrevJIndex = j - 1;
+                if (thisVertexPrevJIndex < 0)
+                {
+                    thisVertexPrevJIndex = resolution - 1;
+                }
+
+                //The vertex coming before this vertex
+                int thisVertexPrev = thisVertexPrevJIndex + i;
+
+                //The corresponding previous vertex on the previous circle
+                int thisVertexPrevPreviousCircle = thisVertexPrev - resolution;
+
+                //Build the triangles
+                int aIndex = thisVertexPrevPreviousCircle;
+                int bIndex = thisVertexPrev;
+                int cIndex = thisVertexPreviousCircle;
+                int dIndex = thisVertex;
+
+                triangles.Add(aIndex);
+                triangles.Add(bIndex);
+                triangles.Add(dIndex);
+
+                triangles.Add(aIndex);
+                triangles.Add(dIndex);
+                triangles.Add(cIndex);
+            }
+        }
+
+
+        //Make a mesh
+        Mesh m = new();
+
+        m.SetVertices(vertices);
+        m.SetTriangles(triangles, 0);
+
+        m.RecalculateNormals();
+
+        //Material baseMaterial = new(Shader.Find("Unlit/Color"));
+
+        Graphics.DrawMesh(m, Vector3.zero, Quaternion.identity, springMaterial, 0, Camera.main, 0);
     }
 }

@@ -155,6 +155,7 @@ MonoBehaviour:
   anchorPointTransform: {fileID: 2029459895}
   springNode1Transform: {fileID: 492907041}
   springNode2Transform: {fileID: 1715576369}
+  springMaterial: {fileID: 2100000, guid: 8ea980d97f4f3db4e8b26026415c4bfc, type: 2}
 --- !u!4 &456547239
 Transform:
   m_ObjectHideFlags: 0
