@@ -53,7 +53,7 @@ public class SpringRopeController : MonoBehaviour
 
 
     private void Update()
-    {
+    {    
         springNode1Transform.position = new Vector3(pos1.x, pos1.y, springNode1Transform.position.z);
         springNode2Transform.position = new Vector3(pos2.x, pos2.y, springNode2Transform.position.z);
 
@@ -70,17 +70,22 @@ public class SpringRopeController : MonoBehaviour
         line.Add(pos1_3d);
         line.Add(pos2_3d);
 
+        DisplayThiccLine(line);
+
+        return;
+
         //Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
 
         List<Vector3> spring1Coordinates = GetVisualSpringCoordinates(pos0_3d, pos1_3d, 0.5f);
-
-        Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.White);
-
         List<Vector3> spring2Coordinates = GetVisualSpringCoordinates(pos1_3d, pos2_3d, 0.5f);
 
-        Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.White);
+        //Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.White);
+        //Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.White);
 
+        DisplayThiccLine(spring1Coordinates);
+        
 
+        //Display the history of the spring positions 
         addToQueueTimer -= Time.deltaTime;
 
         if (addToQueueTimer < 0f)
@@ -91,7 +96,6 @@ public class SpringRopeController : MonoBehaviour
             addToQueueTimer = 0.05f;
         }
 
-
         Copypasta.DisplayGraphics.DisplayLine(new(node1History), Copypasta.Materials.ColorOptions.Blue);
         Copypasta.DisplayGraphics.DisplayLine(new(node2History), Copypasta.Materials.ColorOptions.Yellow);
     }
@@ -99,7 +103,9 @@ public class SpringRopeController : MonoBehaviour
 
 
     private void FixedUpdate()
-    {    
+    {
+        return;
+    
         //Calculate the spring forces
         //F = -kx
         //k - spring constant
@@ -226,6 +232,7 @@ public class SpringRopeController : MonoBehaviour
 
 
 
+    //Rotate a vector with angle theta around a pivot point in 2d space
     private Vector2 RotateVec(float x, float y, float theta, float pivotX, float pivotY)
     {
         float thetaRad = theta * Mathf.Deg2Rad;
@@ -241,5 +248,65 @@ public class SpringRopeController : MonoBehaviour
         yRotated += pivotY;
 
         return new(xRotated, yRotated);
+    }
+
+
+
+    //Extrude a mesh along a line to make a thicc line
+    private void DisplayThiccLine(List<Vector3> lineCoordinates)
+    {
+        //Generate mesh vertices at point 1
+        //Extrude them my moving them along the normal towards the next point
+
+        //Find a point on the circle which is a normal to the first line segment
+        float lineRadius = 0.5f;
+
+        Vector3 a = lineCoordinates[0];
+        Vector3 b = lineCoordinates[1];
+
+        Vector3 lineDir = (b - a).normalized;
+
+        Vector3 normal = Vector3.Cross(lineDir, Vector3.up).normalized;
+
+        Vector3 p0 = normal * lineRadius;
+
+
+        //Find the other vertices by rotating p0 around the line segment to get a full circle with some resolution
+        List<Vector3> vertices = new();
+
+        int resolution = 6;
+
+        float angleStep = 360f / (float)resolution;
+
+        float angle = 0f;
+
+        //Rotate p0 around the line segment to get a full circle with some resolution
+        for (int i = 0; i < resolution; i++)
+        {
+            Vector3 p = Quaternion.AngleAxis(angle, lineDir) * p0;
+
+            p += a;
+
+            vertices.Add(p);
+
+            angle += angleStep;
+        }
+
+
+        //Add the rest of the vertices by moving the previous vertices along the normal towards the next point
+        for (int i = 1; i < lineCoordinates.Count; i++)
+        {
+            Vector3 moveDist = lineCoordinates[i] - lineCoordinates[i - 1];
+
+            for (int j = 0; j < resolution; j++)
+            {
+                Vector3 p = vertices[vertices.Count - resolution];
+
+                vertices.Add(p + moveDist);
+            }
+
+        }
+        
+        Copypasta.DisplayGraphics.DisplayLine(vertices, Copypasta.Materials.ColorOptions.Orange);
     }
 }
