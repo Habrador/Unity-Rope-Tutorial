@@ -43,6 +43,8 @@ public class SpringRopeController : MonoBehaviour
 
     private float addToQueueTimer = 0f;
 
+    private bool canSimulate = false;
+
 
 
     private void Start()
@@ -54,6 +56,17 @@ public class SpringRopeController : MonoBehaviour
         pos1 = new(startX, startY);
 
         pos2 = new(pos1.x, pos1.y - 2f);
+
+        StartCoroutine(WaitForSimulationToStart());
+    }
+
+
+
+    private IEnumerator WaitForSimulationToStart()
+    {
+        yield return new WaitForSeconds(3f);
+
+        canSimulate = true;
     }
 
 
@@ -97,13 +110,15 @@ public class SpringRopeController : MonoBehaviour
 
         if (addToQueueTimer < 0f)
         {
-            node1History.Enqueue(pos1_3d);
-            node2History.Enqueue(pos2_3d);
+            Vector3 offset = Vector3.forward * 2f;
+
+            node1History.Enqueue(pos1_3d + offset);
+            node2History.Enqueue(pos2_3d + offset);
 
             addToQueueTimer = 0.05f;
         }
 
-        Copypasta.DisplayGraphics.DisplayLine(new(node1History), Copypasta.Materials.ColorOptions.Blue);
+        //Copypasta.DisplayGraphics.DisplayLine(new(node1History), Copypasta.Materials.ColorOptions.Blue);
         Copypasta.DisplayGraphics.DisplayLine(new(node2History), Copypasta.Materials.ColorOptions.Yellow);
     }
 
@@ -111,7 +126,10 @@ public class SpringRopeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //return;
+        if (!canSimulate)
+        {
+            return;
+        }
     
         //Calculate the spring forces
         //F = -kx
