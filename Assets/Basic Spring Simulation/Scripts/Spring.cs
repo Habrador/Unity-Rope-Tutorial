@@ -2,39 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//A spring going between two nodes
 public class Spring
 {
-    //Spring data
-    //Spring constant
-    private readonly float k;
-    //Rest length
-    private readonly float restLength;
-    //Spring mass 
-    private readonly float m;
-    //Radius of the wire the spring is made up of
-    public readonly float springWireRadius;
-    //Radius of the spring
-    private readonly float springRadius;
-    
-    //Spring variables
-    //The bottom pos of the spring
-    public Vector2 pos;
-    //The bottom vel of the spring
-    public Vector2 vel;
+    private readonly SpringData springData;
 
-    //Gravity
-    private readonly Vector2 g = new(0f, -9.81f);
+    //The two nodes this spring is connected to
+    private readonly SpringNode node1;
+    private readonly SpringNode node2;
 
 
 
-    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, Vector2 pos)
+    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, SpringNode node1, SpringNode node2)
     {
-        this.k = k;
-        this.restLength = restLength;
-        this.m = m;
-        this.springWireRadius = springWireRadius;
-        this.springRadius = springRadius;
-        this.pos = pos;
+        this.springData = new(k, restLength, m, springWireRadius, springRadius);
+    
+        this.node1 = node1;
+        this.node2 = node2;
     }
 
 
@@ -42,43 +26,26 @@ public class Spring
     //Calculate the spring forces
     //F = -kx
     //k - spring constant
-    //x - x is extension from rest length
-    public Vector2 CalculateSpringForce(Vector2 pos1, Vector2 pos2)
+    //x - extension from rest length
+    public void CalculateSpringForce()
     {
-        Vector2 node1ToNode2 = pos2 - pos1;
+        Vector2 node1ToNode2 = node2.pos - node1.pos;
 
-        float x2 = node1ToNode2.magnitude - restLength;
+        float x2 = node1ToNode2.magnitude - springData.restLength;
 
-        Vector2 F = -k * x2 * node1ToNode2.normalized;
+        Vector2 F = -springData.k * x2 * node1ToNode2.normalized;
 
-        //This is the force on pos2
-        //The force on pos1 is -F
+        //This is the force on node2
+        node2.force += F;
 
-        return F;
-    }
+        //The force on node1 is -F
+        node1.force += -F;
 
+        //The total force on node 1 which is shared between the springs
+        //Vector2 F1_tot = F1 + -F2;
 
-
-    //F is the spring force on the spring, which can be higher than just CalculateSpringForce() if the spring is connected to another spring
-    public void UpdateSpringState(Vector2 F, float dt)
-    {
-        //Add gravity
-        Vector2 F_gravity = m * g;
-
-        F += F_gravity;
-
-
-        //Calculate the acceleration on this node
-        //F = m*a -> a = F/m
-        Vector2 a = F / m;
-
-
-        //Move the simulation forward one step
-        this.vel += dt * a;
-        this.pos += dt * this.vel;
-
-        //Add some damping
-        //this.vel *= 0.99f;
+        //The total force on node 2
+        //Vector2 F2_tot = F2;
     }
 
 
@@ -101,8 +68,8 @@ public class Spring
 
         for (int i = 0; i < iterations + 1; i++)
         {
-            float x = springRadius * Mathf.Cos(angle * Mathf.Deg2Rad);
-            float z = springRadius * Mathf.Sin(angle * Mathf.Deg2Rad);
+            float x = springData.radius * Mathf.Cos(angle * Mathf.Deg2Rad);
+            float z = springData.radius * Mathf.Sin(angle * Mathf.Deg2Rad);
 
             Vector3 vertex = new(x, yPos, z);
 

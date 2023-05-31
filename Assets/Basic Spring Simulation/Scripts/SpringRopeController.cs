@@ -24,9 +24,14 @@ public class SpringRopeController : MonoBehaviour
     //Radius of the spring
     private readonly float springRadius = 0.7f;
 
-    //The two springs
-    private Spring spring1;
-    private Spring spring2;
+    //The three nodes
+    private SpringNode node0;
+    private SpringNode node1;
+    private SpringNode node2;
+
+    //The two springs connecting the 3 nodes
+    private Spring spring01;
+    private Spring spring12;
 
 
     //To display the history
@@ -42,14 +47,16 @@ public class SpringRopeController : MonoBehaviour
     private void Start()
     {
         //Where the spring starts
-        float startY = anchorPointTransform.position.y + 3f;
-        float startX = anchorPointTransform.position.x + 3f;
-
-        Vector2 pos1 = new(startX, startY);
+        Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
+        Vector2 pos1 = new(pos0.x + 3f, pos0.y + 3f);
         Vector2 pos2 = new(pos1.x, pos1.y - 2f);
 
-        spring1 = new(k, restLength, m, springWireRadius, springRadius, pos1);
-        spring2 = new(k, restLength, m, springWireRadius, springRadius, pos2);
+        node0 = new(pos0, true);
+        node1 = new(pos1);
+        node2 = new(pos2);
+
+        spring01 = new(k, restLength, m, springWireRadius, springRadius, node0, node1);
+        spring12 = new(k, restLength, m, springWireRadius, springRadius, node1, node2);
 
         StartCoroutine(WaitForSimulationToStart());
     }
@@ -67,24 +74,23 @@ public class SpringRopeController : MonoBehaviour
 
     private void Update()
     {
-        Vector2 pos1 = spring1.pos;
-        Vector2 pos2 = spring2.pos;
+        Vector2 pos0 = node0.pos;
+        Vector2 pos1 = node1.pos;
+        Vector2 pos2 = node2.pos;
 
         springNode1Transform.position = new Vector3(pos1.x, pos1.y, springNode1Transform.position.z);
         springNode2Transform.position = new Vector3(pos2.x, pos2.y, springNode2Transform.position.z);
-
-        //Connect the nodes with a line
-        Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
-
+        
         Vector3 pos0_3d = new(pos0.x, pos0.y, 0f);
         Vector3 pos1_3d = new(pos1.x, pos1.y, 0f);
         Vector3 pos2_3d = new(pos2.x, pos2.y, 0f);
 
-        List<Vector3> line = new();
+        //Connect the nodes with a line
+        //List<Vector3> line = new();
 
-        line.Add(pos0_3d);
-        line.Add(pos1_3d);
-        line.Add(pos2_3d);
+        //line.Add(pos0_3d);
+        //line.Add(pos1_3d);
+        //line.Add(pos2_3d);
 
         //DisplayThiccLine(line);
 
@@ -92,8 +98,8 @@ public class SpringRopeController : MonoBehaviour
 
         //Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
 
-        List<Vector3> spring1Coordinates = spring1.GetVisualSpringCoordinates(pos0_3d, pos1_3d);
-        List<Vector3> spring2Coordinates = spring2.GetVisualSpringCoordinates(pos1_3d, pos2_3d);
+        List<Vector3> spring1Coordinates = spring01.GetVisualSpringCoordinates(pos0_3d, pos1_3d);
+        List<Vector3> spring2Coordinates = spring12.GetVisualSpringCoordinates(pos1_3d, pos2_3d);
 
         //Copypasta.DisplayGraphics.DisplayLine(spring1Coordinates, Copypasta.Materials.ColorOptions.White);
         //Copypasta.DisplayGraphics.DisplayLine(spring2Coordinates, Copypasta.Materials.ColorOptions.White);
@@ -129,27 +135,28 @@ public class SpringRopeController : MonoBehaviour
         }
 
         //The fixed anchor node
-        Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
+        //Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
 
 
-        //Calculate the spring forces
-        Vector2 F1 = spring1.CalculateSpringForce(pos0, spring1.pos);
-        Vector2 F2 = spring2.CalculateSpringForce(spring1.pos, spring2.pos);
+        //Calculate the spring forces which will also update the forces on the nodes connected to the springs
+        spring01.CalculateSpringForce();
+        spring12.CalculateSpringForce();
 
 
         //Calculate the total force on each node
 
         //The total force on node 1 which is shared between the springs
-        Vector2 F1_tot = F1 + -F2;
+        //Vector2 F1_tot = F1 + -F2;
 
         //The total force on node 2
-        Vector2 F2_tot = F2;
+        //Vector2 F2_tot = F2;
 
 
         //Update each node with the forces
         float dt = Time.fixedDeltaTime;
 
-        spring1.UpdateSpringState(F1_tot, dt);
-        spring2.UpdateSpringState(F2_tot, dt);
+        node0.UpdateNodeState(dt);
+        node1.UpdateNodeState(dt);
+        node2.UpdateNodeState(dt);
     }
 }
