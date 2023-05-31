@@ -51,6 +51,9 @@ public class Spring
 
         Vector2 F = -k * x2 * node1ToNode2.normalized;
 
+        //This is the force on pos2
+        //The force on pos1 is -F
+
         return F;
     }
 
