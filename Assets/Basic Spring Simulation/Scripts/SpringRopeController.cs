@@ -7,7 +7,6 @@ public class SpringRopeController : MonoBehaviour
     public Transform anchorPointTransform;
 
     public Transform springNode1Transform;
-
     public Transform springNode2Transform;
 
     public Material springMaterial;
@@ -59,6 +58,7 @@ public class SpringRopeController : MonoBehaviour
         spring12 = new(k, restLength, m, springWireRadius, springRadius, node1, node2);
 
 
+        //Freeze the simulation before it starts
         StartCoroutine(WaitForSimulationToStart());
     }
 
