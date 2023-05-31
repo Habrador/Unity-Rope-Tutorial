@@ -58,6 +58,7 @@ public class SpringRopeController : MonoBehaviour
         spring01 = new(k, restLength, m, springWireRadius, springRadius, node0, node1);
         spring12 = new(k, restLength, m, springWireRadius, springRadius, node1, node2);
 
+
         StartCoroutine(WaitForSimulationToStart());
     }
 
@@ -85,6 +86,7 @@ public class SpringRopeController : MonoBehaviour
         Vector3 pos1_3d = new(pos1.x, pos1.y, 0f);
         Vector3 pos2_3d = new(pos2.x, pos2.y, 0f);
 
+
         //Connect the nodes with a line
         //List<Vector3> line = new();
 
@@ -96,6 +98,8 @@ public class SpringRopeController : MonoBehaviour
 
         //return;
 
+
+        //Display the springs
         //Copypasta.DisplayGraphics.DisplayLine(line, Copypasta.Materials.ColorOptions.Red);
 
         List<Vector3> spring1Coordinates = spring01.GetVisualSpringCoordinates(pos0_3d, pos1_3d);
@@ -134,22 +138,13 @@ public class SpringRopeController : MonoBehaviour
             return;
         }
 
-        //The fixed anchor node
+        //The fixed anchor node (if we moved it it can be updated here)
         //Vector2 pos0 = new(anchorPointTransform.position.x, anchorPointTransform.position.y);
 
 
         //Calculate the spring forces which will also update the forces on the nodes connected to the springs
         spring01.CalculateSpringForce();
         spring12.CalculateSpringForce();
-
-
-        //Calculate the total force on each node
-
-        //The total force on node 1 which is shared between the springs
-        //Vector2 F1_tot = F1 + -F2;
-
-        //The total force on node 2
-        //Vector2 F2_tot = F2;
 
 
         //Update each node with the forces
