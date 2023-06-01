@@ -64,8 +64,8 @@ public class Spring
 
 
         //Generate a spring going downwards in y direction
-        Vector2 pos1_2d = new(pos1.x, pos1.y);
-        Vector2 pos2_2d = new(pos2.x, pos2.y);
+        //Vector2 pos1_2d = new(pos1.x, pos1.y);
+        //Vector2 pos2_2d = new(pos2.x, pos2.y);
 
         int iterations = circleResolution * springSpirals;
 
@@ -73,7 +73,7 @@ public class Spring
         float angleStep = 360f / (float)circleResolution;
 
         float yPos = pos1.y;
-        float yStep = (pos2_2d - pos1_2d).magnitude / (float)iterations;
+        float yStep = (pos2 - pos1).magnitude / (float)iterations;
 
         for (int i = 0; i < iterations + 1; i++)
         {
@@ -83,7 +83,7 @@ public class Spring
             Vector3 vertex = new(x, yPos, z);
 
             vertex.x += pos1.x;
-            //vertex.z += pos1.z;
+            vertex.z += pos1.z;
 
             coordinates.Add(vertex);
 
@@ -101,18 +101,15 @@ public class Spring
 
 
 
-    //Rotate coordinates of a spring so they go from pos1 to pos 2 in xy space
+    //Rotate coordinates of a spring so they go from pos1 to pos 2 in 3d space
     private void RotateSpring(Vector3 pos1, Vector3 pos2, List<Vector3> coordinates)
     {
-        //coordinates.Add(pos1);
-        //coordinates.Add(pos1 - Vector3.up * (pos1 - pos2).magnitude);
-
-
-        //Rotate the spring to match the direction pos1 -> pos2
         Vector3 pivotPoint = pos1;
 
         //Atan2 returns 0->180 counter-clockwise if above x-axis, 0->-180 if below x-axis
-        float theta = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
+        float thetaZ = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
+        float thetaX = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.z - pivotPoint.z) * Mathf.Rad2Deg + 90f;
+        float thetaY = Mathf.Atan2(pos2.z - pivotPoint.z, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
 
         //This will rotate it by for example 45 degrees but the spring is not starting along the x-axis where the degrees start
         //which is why we have to compensate by the 90 degrees in atan2 calculations
@@ -120,9 +117,22 @@ public class Spring
         {
             Vector3 vec = coordinates[i];
 
-            Vector2 vecRotated = RotateVec(vec.x, vec.y, theta, pivotPoint.x, pivotPoint.y);
+            vec -= pivotPoint;
 
-            coordinates[i] = new(vecRotated.x, vecRotated.y, vec.z);
+            //2d space
+            vec = Quaternion.Euler(0f, 0f, thetaZ) * vec;
+            //vec = Quaternion.Euler(-thetaX, 0f, 0f) * vec;
+
+            //3d space
+
+            //Doesnt work!!!
+            //vec = Quaternion.Euler(-thetaX, 0f, thetaZ) * vec;
+
+            //vec = Quaternion.Euler(0f, 0f, thetaZ) * Quaternion.Euler(-thetaX, 0f, 0f) * vec;
+
+            vec += pivotPoint;
+
+            coordinates[i] = vec;
         }
     }
 
