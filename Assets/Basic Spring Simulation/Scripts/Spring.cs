@@ -107,9 +107,9 @@ public class Spring
         Vector3 pivotPoint = pos1;
 
         //Atan2 returns 0->180 counter-clockwise if above x-axis, 0->-180 if below x-axis
-        float thetaZ = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
-        float thetaX = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.z - pivotPoint.z) * Mathf.Rad2Deg + 90f;
-        float thetaY = Mathf.Atan2(pos2.z - pivotPoint.z, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
+        //float thetaZ = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
+        //float thetaX = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.z - pivotPoint.z) * Mathf.Rad2Deg + 90f;
+        //float thetaY = Mathf.Atan2(pos2.z - pivotPoint.z, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
 
         //To do it in 3d we better use Quaternions
         Vector3 lookDir = (pos2 - pos1).normalized;
@@ -142,25 +142,5 @@ public class Spring
 
             coordinates[i] = vec;
         }
-    }
-
-
-
-    //Rotate a vector with angle theta around a pivot point in 2d space
-    private Vector2 RotateVec(float x, float y, float theta, float pivotX, float pivotY)
-    {
-        float thetaRad = theta * Mathf.Deg2Rad;
-
-        //Subtract the pivot from the vector so the vector originates from origo
-        float xZero = x - pivotX;
-        float yZero = y - pivotY;
-
-        float xRotated = xZero * Mathf.Cos(thetaRad) - yZero * Mathf.Sin(thetaRad);
-        float yRotated = xZero * Mathf.Sin(thetaRad) + yZero * Mathf.Cos(thetaRad);
-
-        xRotated += pivotX;
-        yRotated += pivotY;
-
-        return new(xRotated, yRotated);
     }
 }
