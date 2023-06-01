@@ -55,20 +55,25 @@ public class Spring
 
 
 
-    //Generate coordinates for a line that curves like a spring goinng from pos1 to pos2
+    //Generate coordinates for a line that curves like a spring going from pos1 to pos2
+    //The spring will be in x-y space but have a z-coordinate
+    //The input z-coordinate is ignored
     public List<Vector3> GetVisualSpringCoordinates(Vector3 pos1, Vector3 pos2, int circleResolution = 10)
     {
         List<Vector3> coordinates = new();
 
 
         //Generate a spring going downwards in y direction
+        Vector2 pos1_2d = new(pos1.x, pos1.y);
+        Vector2 pos2_2d = new(pos2.x, pos2.y);
+
         int iterations = circleResolution * springSpirals;
 
         float angle = 90f;
         float angleStep = 360f / (float)circleResolution;
 
         float yPos = pos1.y;
-        float yStep = (pos2 - pos1).magnitude / (float)iterations;
+        float yStep = (pos2_2d - pos1_2d).magnitude / (float)iterations;
 
         for (int i = 0; i < iterations + 1; i++)
         {
@@ -78,7 +83,7 @@ public class Spring
             Vector3 vertex = new(x, yPos, z);
 
             vertex.x += pos1.x;
-            vertex.z += pos1.z;
+            //vertex.z += pos1.z;
 
             coordinates.Add(vertex);
 
@@ -96,7 +101,7 @@ public class Spring
 
 
 
-    //Rotate coordinates of a spring so they go from pos1 to pos 2 
+    //Rotate coordinates of a spring so they go from pos1 to pos 2 in xy space
     private void RotateSpring(Vector3 pos1, Vector3 pos2, List<Vector3> coordinates)
     {
         //coordinates.Add(pos1);
