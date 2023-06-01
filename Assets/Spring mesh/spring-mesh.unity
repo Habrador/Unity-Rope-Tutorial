@@ -440,7 +440,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1447469887}
   - component: {fileID: 1447469888}
-  - component: {fileID: 1447469889}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -478,20 +477,6 @@ MonoBehaviour:
   springStartTransform: {fileID: 916574498}
   springEndTransform: {fileID: 1514227479}
   springMF: {fileID: 2006302289}
---- !u!114 &1447469889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1447469886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d3c9fdc5fc4d2248836c8ee4eba5409, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  springStartTransform: {fileID: 916574498}
-  springEndTransform: {fileID: 1514227479}
 --- !u!1 &1514227478
 GameObject:
   m_ObjectHideFlags: 0

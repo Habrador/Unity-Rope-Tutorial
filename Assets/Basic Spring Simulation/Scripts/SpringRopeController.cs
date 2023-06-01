@@ -24,13 +24,13 @@ public class SpringRopeController : MonoBehaviour
     private readonly float springRadius = 0.7f;
 
     //The three nodes
-    private SpringNode node0;
-    private SpringNode node1;
-    private SpringNode node2;
+    private SpringNode2D node0;
+    private SpringNode2D node1;
+    private SpringNode2D node2;
 
     //The two springs connecting the 3 nodes
-    private Spring spring01;
-    private Spring spring12;
+    private Spring2D spring01;
+    private Spring2D spring12;
 
 
     //To display the history

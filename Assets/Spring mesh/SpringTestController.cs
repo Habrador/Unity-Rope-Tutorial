@@ -23,23 +23,29 @@ public class SpringTestController : MonoBehaviour
     private readonly float springRadius = 0.7f;
 
     //The nodes
-    private SpringNode node0;
-    private SpringNode node1;
+    private SpringNode3D node0;
+    private SpringNode3D node1;
 
     //The spring
-    private Spring spring01;
+    private Spring3D spring01;
 
 
 
     private void Start()
     {
-        spring01 = new Spring(k, restLength, m, springWireRadius, springRadius, null, null);
+        node0 = new SpringNode3D(springStartTransform.position, true);
+        node1 = new SpringNode3D(springEndTransform.position);
+    
+        spring01 = new Spring3D(k, restLength, m, springWireRadius, springRadius, node0, node1);
     }
 
 
 
     private void Update()
     {
+        springEndTransform.position = node1.pos;
+
+
         Vector3 p0 = springStartTransform.position;
         Vector3 p1 = springEndTransform.position;
 
@@ -48,5 +54,20 @@ public class SpringTestController : MonoBehaviour
         Mesh springMesh = Copypasta.DisplayGraphics.GenerateThiccLineMesh(springCoordinates, springWireRadius, 5);
 
         springMF.mesh = springMesh;
+    }
+
+
+
+    private void FixedUpdate()
+    {
+        //Calculate the spring forces which will also update the forces on the nodes connected to the springs
+        spring01.CalculateSpringForce();
+
+
+        //Update each node with the forces
+        float dt = Time.fixedDeltaTime;
+
+        node0.UpdateNodeState(dt);
+        node1.UpdateNodeState(dt);
     }
 }

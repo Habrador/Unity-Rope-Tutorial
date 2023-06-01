@@ -3,55 +3,55 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //A spring going between two nodes
-public class Spring
+public abstract class Spring
 {
-    private readonly SpringData springData;
+    protected readonly SpringData springData;
 
     //The two nodes this spring is connected to
-    private readonly SpringNode node1;
-    private readonly SpringNode node2;
+    //private readonly SpringNode node1;
+    //private readonly SpringNode node2;
 
     //How many spirals does the spring consist of?
     private readonly int springSpirals;
 
 
 
-    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, SpringNode node1, SpringNode node2, int springSpirals = 5)
+    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, int springSpirals = 5)
     {
         this.springData = new(k, restLength, m, springWireRadius, springRadius);
     
-        this.node1 = node1;
-        this.node2 = node2;
+        //this.node1 = node1;
+        //this.node2 = node2;
 
         this.springSpirals = springSpirals;
     }
 
 
 
-    //Calculate the spring forces
-    //F = -kx
-    //k - spring constant
-    //x - extension from rest length
-    public void CalculateSpringForce()
-    {
-        Vector2 node1ToNode2 = node2.pos - node1.pos;
+    ////Calculate the spring forces
+    ////F = -kx
+    ////k - spring constant
+    ////x - extension from rest length
+    //public void CalculateSpringForce()
+    //{
+    //    Vector2 node1ToNode2 = node2.pos - node1.pos;
 
-        float x2 = node1ToNode2.magnitude - springData.restLength;
+    //    float x2 = node1ToNode2.magnitude - springData.restLength;
 
-        Vector2 F = -springData.k * x2 * node1ToNode2.normalized;
+    //    Vector2 F = -springData.k * x2 * node1ToNode2.normalized;
 
-        //This is the force on node2
-        node2.force += F;
+    //    //This is the force on node2
+    //    node2.force += F;
 
-        //The force on node1 is -F
-        node1.force += -F;
+    //    //The force on node1 is -F
+    //    node1.force += -F;
 
-        //The total force on node 1 which is shared between the springs
-        //Vector2 F1_tot = F1 + -F2;
+    //    //The total force on node 1 which is shared between the springs
+    //    //Vector2 F1_tot = F1 + -F2;
 
-        //The total force on node 2
-        //Vector2 F2_tot = F2;
-    }
+    //    //The total force on node 2
+    //    //Vector2 F2_tot = F2;
+    //}
 
 
 
