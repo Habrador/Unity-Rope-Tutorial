@@ -120,7 +120,6 @@ namespace Copypasta
         public static Mesh GenerateThiccLineMesh(List<Vector3> lineCoordinates, float lineRadius, int lineResolution)
         {
             //Generate mesh vertices at point 1 in a circle aligned along the first line segment
-            //Extrude them my moving them along the normal towards the next point
 
             //Find a point on the circle which is a normal to the first line segment
             Vector3 a = lineCoordinates[0];
@@ -153,18 +152,35 @@ namespace Copypasta
             }
 
 
-            //Add the rest of the vertices by moving the previous vertices along the normal towards the next point
+            //Add the rest of the vertices by repeating the process
+            //Using the line direction to move the vertices along the line is NOT working
             for (int i = 1; i < lineCoordinates.Count; i++)
             {
-                Vector3 moveDist = lineCoordinates[i] - lineCoordinates[i - 1];
+                Vector3 a2 = lineCoordinates[i - 1];
+                Vector3 b2 = lineCoordinates[i];
 
+                Vector3 lineDir2 = (b2 - a2).normalized;
+
+                Vector3 normal2 = Vector3.Cross(lineDir2, Vector3.up).normalized;
+
+                Vector3 p02 = normal2 * lineRadius;
+
+
+                float angle2 = 0f;
+
+                //Rotate p0 around the line segment to get a full circle with some resolution
                 for (int j = 0; j < lineResolution; j++)
                 {
-                    Vector3 p = vertices[vertices.Count - lineResolution];
+                    Vector3 p = Quaternion.AngleAxis(angle2, lineDir2) * p02;
 
-                    vertices.Add(p + moveDist);
+                    p += b2;
+
+                    vertices.Add(p);
+
+                    angle2 += angleStep;
                 }
 
+                //break;
             }
 
             //Copypasta.DisplayGraphics.DisplayLine(vertices, Copypasta.Materials.ColorOptions.Orange);
