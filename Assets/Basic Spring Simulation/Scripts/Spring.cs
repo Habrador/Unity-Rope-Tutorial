@@ -111,6 +111,14 @@ public class Spring
         float thetaX = Mathf.Atan2(pos2.y - pivotPoint.y, pos2.z - pivotPoint.z) * Mathf.Rad2Deg + 90f;
         float thetaY = Mathf.Atan2(pos2.z - pivotPoint.z, pos2.x - pivotPoint.x) * Mathf.Rad2Deg + 90f;
 
+        //To do it in 3d we better use Quaternions
+        Vector3 lookDir = (pos2 - pos1).normalized;
+
+        Quaternion rot = Quaternion.LookRotation(lookDir, Vector3.up);
+
+        //Our vectors forward is in down direction, so we have to translate it to the forward direction, which is what LookRotation cares about
+        rot *= Quaternion.FromToRotation(Vector3.down, Vector3.forward);
+
         //This will rotate it by for example 45 degrees but the spring is not starting along the x-axis where the degrees start
         //which is why we have to compensate by the 90 degrees in atan2 calculations
         for (int i = 0; i < coordinates.Count; i++)
@@ -120,7 +128,7 @@ public class Spring
             vec -= pivotPoint;
 
             //2d space
-            vec = Quaternion.Euler(0f, 0f, thetaZ) * vec;
+            //vec = Quaternion.Euler(0f, 0f, thetaZ) * vec;
             //vec = Quaternion.Euler(-thetaX, 0f, 0f) * vec;
 
             //3d space
@@ -128,7 +136,7 @@ public class Spring
             //Doesnt work!!!
             //vec = Quaternion.Euler(-thetaX, 0f, thetaZ) * vec;
 
-            //vec = Quaternion.Euler(0f, 0f, thetaZ) * Quaternion.Euler(-thetaX, 0f, 0f) * vec;
+            vec = rot * vec;         
 
             vec += pivotPoint;
 
