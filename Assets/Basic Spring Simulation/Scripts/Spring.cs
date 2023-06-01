@@ -11,14 +11,19 @@ public class Spring
     private readonly SpringNode node1;
     private readonly SpringNode node2;
 
+    //How many spirals does the spring consist of?
+    private readonly int springSpirals;
 
 
-    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, SpringNode node1, SpringNode node2)
+
+    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, SpringNode node1, SpringNode node2, int springSpirals = 5)
     {
         this.springData = new(k, restLength, m, springWireRadius, springRadius);
     
         this.node1 = node1;
         this.node2 = node2;
+
+        this.springSpirals = springSpirals;
     }
 
 
@@ -51,14 +56,13 @@ public class Spring
 
 
     //Generate coordinates for a line that curves like a spring goinng from pos1 to pos2
-    public List<Vector3> GetVisualSpringCoordinates(Vector3 pos1, Vector3 pos2)
+    public List<Vector3> GetVisualSpringCoordinates(Vector3 pos1, Vector3 pos2, int circleResolution = 10)
     {
         List<Vector3> coordinates = new();
 
 
-        int circleResolution = 10;
-        int spirals = 5;
-        int iterations = circleResolution * spirals;
+        //Generate a spring going downwards in y direction
+        int iterations = circleResolution * springSpirals;
 
         float angle = 90f;
         float angleStep = 360f / (float)circleResolution;
@@ -82,8 +86,10 @@ public class Spring
             yPos -= yStep;
         }
 
+
         //Rotate coordinates of a spring so they go from pos1 to pos 2
         RotateSpring(pos1, pos2, coordinates);
+
 
         return coordinates;
     }

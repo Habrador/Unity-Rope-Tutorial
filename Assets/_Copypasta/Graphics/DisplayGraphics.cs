@@ -198,12 +198,12 @@ namespace Copypasta
                     int cIndex = thisVertexPreviousCircle;
                     int dIndex = thisVertex;
 
-                    triangles.Add(aIndex);
                     triangles.Add(bIndex);
+                    triangles.Add(aIndex);
                     triangles.Add(dIndex);
 
-                    triangles.Add(aIndex);
                     triangles.Add(dIndex);
+                    triangles.Add(aIndex);
                     triangles.Add(cIndex);
                 }
             }

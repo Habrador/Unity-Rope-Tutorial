@@ -14,6 +14,8 @@ public struct SpringData
     public readonly float springWireRadius;
     //Radius of the spring
     public readonly float radius;
+   
+
 
     public SpringData(float k, float restLength, float m, float springWireRadius, float radius)
     {
