@@ -43,13 +43,13 @@ public class SpringTestController : MonoBehaviour
 
     private void Update()
     {
-        springEndTransform.position = node1.pos;
+        //springEndTransform.position = node1.pos;
 
 
-        Vector3 p0 = springStartTransform.position;
-        Vector3 p1 = springEndTransform.position;
+        Vector3 pos1 = springStartTransform.position;
+        Vector3 pos2 = springEndTransform.position;
 
-        List<Vector3> springCoordinates = spring01.GetVisualSpringCoordinates(p0, p1, 50);
+        List<Vector3> springCoordinates = spring01.GetVisualSpringCoordinates(pos1, pos2, 50);
 
         Mesh springMesh = Copypasta.DisplayGraphics.GenerateThiccLineMesh(springCoordinates, springWireRadius, 5);
 
@@ -60,6 +60,9 @@ public class SpringTestController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        return;    
+
+
         //Calculate the spring forces which will also update the forces on the nodes connected to the springs
         spring01.CalculateSpringForce();
 

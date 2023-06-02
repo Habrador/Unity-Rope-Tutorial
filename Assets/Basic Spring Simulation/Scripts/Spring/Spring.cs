@@ -114,7 +114,8 @@ public abstract class Spring
         //To do it in 3d we better use Quaternions
         Vector3 lookDir = (pos2 - pos1).normalized;
 
-        Quaternion rot = Quaternion.LookRotation(lookDir, Vector3.up);
+        //Using Vector3.up makes the spring flip now and then when it rotates past an axle
+        Quaternion rot = Quaternion.LookRotation(lookDir, Vector3.right);
 
         //Our vectors forward is in down direction, so we have to translate it to the forward direction, which is what LookRotation cares about
         rot *= Quaternion.FromToRotation(Vector3.down, Vector3.forward);
