@@ -60,6 +60,8 @@ public abstract class Spring
 
 
     //Rotate coordinates of a spring so they go from pos1 to pos 2 in 3d space
+    //This wont work in 3d space if its animating, but 2d space works fine
+    //The spring can end up pointing in the same direction in two different rotations - one is upside-down. This means that the new rotation evaluation must consider the previous state, and the result rotation must be a result of moving from one state to the new one, not just getting new values each time.
     private void RotateSpring(Vector3 pos1, Vector3 pos2, List<Vector3> coordinates)
     {
         Vector3 pivotPoint = pos1;
@@ -73,7 +75,16 @@ public abstract class Spring
         Vector3 lookDir = (pos2 - pos1).normalized;
 
         //Using Vector3.up makes the spring flip now and then when it rotates past an axle
-        Quaternion rot = Quaternion.LookRotation(lookDir, Vector3.right);
+        //Vector3.up makes it flip, but when crossing another axis but hides the inaccuracies the best
+        //Vector3 upwards = Vector3.up;
+        Vector3 upwards = Vector3.right;
+
+        //Vector3 upwards = new Vector3(lookDir.z, lookDir.y, -lookDir.x);
+
+        Quaternion rot = Quaternion.LookRotation(lookDir, upwards);
+        
+        //Quaternion rot = Quaternion.LookRotation(Vector3.up, lookDir);
+        //rot*= Quaternion.LookRotation(transform.up, transform.forward);
 
         //Our vectors forward is in down direction, so we have to translate it to the forward direction, which is what LookRotation cares about
         rot *= Quaternion.FromToRotation(Vector3.down, Vector3.forward);
