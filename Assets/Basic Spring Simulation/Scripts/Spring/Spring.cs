@@ -7,67 +7,25 @@ public abstract class Spring
 {
     protected readonly SpringData springData;
 
-    //The two nodes this spring is connected to
-    //private readonly SpringNode node1;
-    //private readonly SpringNode node2;
-
-    //How many spirals does the spring consist of?
-    private readonly int springSpirals;
 
 
-
-    public Spring(float k, float restLength, float m, float springWireRadius, float springRadius, int springSpirals = 5)
+    public Spring(SpringData springData)
     {
-        this.springData = new(k, restLength, m, springWireRadius, springRadius);
-    
-        //this.node1 = node1;
-        //this.node2 = node2;
-
-        this.springSpirals = springSpirals;
+        this.springData = springData;
     }
-
-
-
-    ////Calculate the spring forces
-    ////F = -kx
-    ////k - spring constant
-    ////x - extension from rest length
-    //public void CalculateSpringForce()
-    //{
-    //    Vector2 node1ToNode2 = node2.pos - node1.pos;
-
-    //    float x2 = node1ToNode2.magnitude - springData.restLength;
-
-    //    Vector2 F = -springData.k * x2 * node1ToNode2.normalized;
-
-    //    //This is the force on node2
-    //    node2.force += F;
-
-    //    //The force on node1 is -F
-    //    node1.force += -F;
-
-    //    //The total force on node 1 which is shared between the springs
-    //    //Vector2 F1_tot = F1 + -F2;
-
-    //    //The total force on node 2
-    //    //Vector2 F2_tot = F2;
-    //}
 
 
 
     //Generate coordinates for a line that curves like a spring going from pos1 to pos2
     //The spring will be in x-y space but have a z-coordinate
     //The input z-coordinate is ignored
+    //It will go downwards in -y-direction
     public List<Vector3> GetVisualSpringCoordinates(Vector3 pos1, Vector3 pos2, int circleResolution = 10)
     {
         List<Vector3> coordinates = new();
+ 
 
-
-        //Generate a spring going downwards in y direction
-        //Vector2 pos1_2d = new(pos1.x, pos1.y);
-        //Vector2 pos2_2d = new(pos2.x, pos2.y);
-
-        int iterations = circleResolution * springSpirals;
+        int iterations = circleResolution * springData.spirals;
 
         float angle = 90f;
         float angleStep = 360f / (float)circleResolution;

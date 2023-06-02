@@ -22,6 +22,8 @@ public class SpringRopeController : MonoBehaviour
     private readonly float springWireRadius = 0.07f;
     //Radius of the spring
     private readonly float springRadius = 0.7f;
+    //How many spirals does the spring have
+    private readonly int springSpirals = 5;
 
     //The three nodes
     private SpringNode2D node0;
@@ -54,8 +56,10 @@ public class SpringRopeController : MonoBehaviour
         node1 = new(pos1);
         node2 = new(pos2);
 
-        spring01 = new(k, restLength, m, springWireRadius, springRadius, node0, node1);
-        spring12 = new(k, restLength, m, springWireRadius, springRadius, node1, node2);
+        SpringData springData = new SpringData(k, restLength, m, springWireRadius, springRadius, springSpirals);
+
+        spring01 = new(springData, node0, node1);
+        spring12 = new(springData, node1, node2);
 
 
         //Freeze the simulation before it starts

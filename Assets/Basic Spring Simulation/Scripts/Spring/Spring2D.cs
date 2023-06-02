@@ -9,7 +9,7 @@ public class Spring2D : Spring
 
 
 
-    public Spring2D(float k, float restLength, float m, float springWireRadius, float springRadius, SpringNode2D node1, SpringNode2D node2, int springSpirals = 5) : base(k, restLength, m, springWireRadius, springRadius, springSpirals)
+    public Spring2D(SpringData springData, SpringNode2D node1, SpringNode2D node2) : base(springData)
     {
         this.node1 = node1;
         this.node2 = node2;

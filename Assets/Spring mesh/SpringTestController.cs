@@ -21,6 +21,8 @@ public class SpringTestController : MonoBehaviour
     private readonly float springWireRadius = 0.07f;
     //Radius of the spring
     private readonly float springRadius = 0.7f;
+    //How many spirals does the spring have
+    private readonly int springSpirals = 5;
 
     //The nodes
     private SpringNode3D node0;
@@ -35,8 +37,10 @@ public class SpringTestController : MonoBehaviour
     {
         node0 = new SpringNode3D(springStartTransform.position, true);
         node1 = new SpringNode3D(springEndTransform.position);
-    
-        spring01 = new Spring3D(k, restLength, m, springWireRadius, springRadius, node0, node1);
+
+        SpringData springData = new SpringData(k, restLength, m, springWireRadius, springRadius, springSpirals);
+
+        spring01 = new Spring3D(springData, node0, node1);
     }
 
 
